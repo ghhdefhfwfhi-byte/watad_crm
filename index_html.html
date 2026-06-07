@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bait Al Nono CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Quicksand:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#FFF8F4;
+  --cream:#FFEEE3;
+  --soft:#FFE0D0;
+  --pink:#FF8FA3;
+  --pink-deep:#E5638C;
+  --rose:#F5A3B7;
+  --mint:#A8DCC4;
+  --sage:#C5E4D8;
+  --warm:#FFB088;
+  --brown:#8B5A3C;
+  --text:#5D4037;
+  --soft-text:#9E7A6B;
+  --border:rgba(229,99,140,.18);
+  --gap:2px;
+  --green:#5BB987;
+  --yellow:#F4B942;
+  --purple:#B89BC9;
+  --red:#E57373;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif}
+
+.screen{display:none;position:fixed;inset:0;z-index:900;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFE0D0 0%,#FFF8F4 50%,#FFEEE3 100%);overflow-y:auto;padding:20px 0}
+.screen.on{display:flex}
+
+.box{background:#fff;border-top:4px solid var(--pink);width:460px;max-width:95vw;box-shadow:0 20px 50px rgba(229,99,140,.15);border-radius:16px;overflow:hidden}
+.bh{padding:26px 28px 18px;border-bottom:1px solid var(--border);text-align:center;background:linear-gradient(180deg,#FFF8F4 0%,#fff 100%)}
+.logo-wrap{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.logo-icon{font-size:28px}
+.logo{font-family:'Quicksand',sans-serif;font-size:24px;font-weight:700;letter-spacing:2px;color:var(--pink-deep)}
+.logo-ar{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800;color:var(--pink-deep);letter-spacing:2px;margin-top:2px}
+.bsub{font-size:9px;font-weight:700;letter-spacing:4px;color:var(--soft-text);text-transform:uppercase;margin-top:8px}
+.bb{padding:24px 28px}
+.step-block{background:var(--cream);padding:14px 16px;margin-bottom:12px;border-right:3px solid var(--pink);border-radius:8px}
+.sn{font-size:8px;font-weight:700;letter-spacing:3px;color:var(--pink-deep);text-transform:uppercase;margin-bottom:6px}
+.st{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.sd{font-size:11px;color:var(--soft-text);line-height:1.7}
+.fl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pink-deep);margin-bottom:5px;display:block}
+.fi{width:100%;background:#fff;color:var(--text);border:1px solid var(--border);padding:10px 13px;font-family:'Tajawal',sans-serif;font-size:12px;outline:none;transition:.2s;margin-top:2px;border-radius:8px}
+.fi:focus{border-color:var(--pink)}
+.fi::placeholder{color:#C9B8AE}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.fg{display:flex;flex-direction:column}
+.fg.full{grid-column:1/-1}
+.big-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,#FF8FA3 0%,#E5638C 100%);color:#fff;border:none;padding:13px;font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:.2s;border-radius:10px;box-shadow:0 4px 12px rgba(229,99,140,.25)}
+.big-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(229,99,140,.35)}
+.err{font-size:11px;color:var(--red);margin-top:8px;min-height:16px;text-align:center;letter-spacing:1px}
+.bf{padding:12px 28px;border-top:1px solid var(--border);font-size:10px;color:var(--soft-text);text-align:center;letter-spacing:2px;background:var(--cream)}
+
+.login-box{background:#fff;border-top:4px solid var(--pink);width:380px;max-width:95vw;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(229,99,140,.15)}
+.name-inp{width:100%;background:#fff;color:var(--text);border:1px solid var(--border);padding:13px 16px;font-family:'Tajawal',sans-serif;font-size:14px;outline:none;transition:.2s;border-radius:8px}
+.name-inp:focus{border-color:var(--pink)}
+.saved-users{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:200px;overflow-y:auto}
+.saved-user-btn{background:var(--cream);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:.15s;text-align:left;border-radius:10px}
+.saved-user-btn:hover{border-color:var(--pink);background:var(--soft)}
+.role-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:1px}
+.r-admin{background:rgba(229,99,140,.15);color:var(--pink-deep)}
+.r-manager{background:rgba(168,220,196,.4);color:#3a8d6a}
+.r-viewer{background:rgba(184,155,201,.3);color:var(--purple)}
+.online-pill{display:flex;align-items:center;justify-content:center;gap:7px;font-size:10px;color:var(--green);font-weight:700;letter-spacing:2px;margin-top:14px}
+.pdot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+
+#app{display:none;min-height:100vh;flex-direction:column;background:var(--bg)}
+#app.on{display:flex}
+
+.header{background:linear-gradient(180deg,#fff 0%,#FFF8F4 100%);border-bottom:2px solid var(--pink);padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;gap:12px;box-shadow:0 2px 12px rgba(229,99,140,.08)}
+.hlogo{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hlogo-icon{font-size:20px}
+.hlogo-text{font-family:'Quicksand',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--pink-deep)}
+.hmid{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.sync-badge{font-size:9px;font-weight:700;letter-spacing:2px;padding:4px 10px;border-radius:8px;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.sb-live{background:rgba(91,185,135,.15);color:var(--green)}
+.sb-con{background:rgba(244,185,66,.15);color:var(--yellow)}
+.sb-off{background:rgba(229,115,115,.15);color:var(--red)}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.sb-live .sdot{animation:pulse 1.5s infinite}
+.online-avs{display:flex;gap:4px;flex-wrap:wrap}
+.oav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;border:2px solid #fff;position:relative;flex-shrink:0;box-shadow:0 2px 4px rgba(229,99,140,.2)}
+.oav::after{content:'';position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;background:var(--green);border-radius:50%;border:2px solid #fff}
+.hright{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--cream);padding:6px 12px;border-radius:10px;border:1px solid var(--border)}
+.user-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.user-meta{display:flex;flex-direction:column;line-height:1.2}
+.user-name{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text)}
+.user-role{font-size:8px;letter-spacing:1px;font-weight:700;margin-top:2px}
+.hbtn{padding:7px 14px;font-family:'Tajawal',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;border-radius:8px;transition:.15s;white-space:nowrap}
+.hbtn-add{background:linear-gradient(135deg,#FF8FA3 0%,#E5638C 100%);color:#fff;border:none;box-shadow:0 2px 8px rgba(229,99,140,.25)}
+.hbtn-add:hover{box-shadow:0 4px 12px rgba(229,99,140,.4)}
+.hbtn-users{background:#fff;border:1px solid var(--pink);color:var(--pink-deep)}.hbtn-users:hover{background:var(--pink);color:#fff}
+.hbtn-out{background:#fff;border:1px solid var(--border);color:var(--soft-text)}.hbtn-out:hover{border-color:var(--red);color:var(--red)}
+
+.controls{background:#fff;border-bottom:1px solid var(--border);padding:10px 22px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.clbl{font-size:9px;font-weight:700;letter-spacing:3px;color:var(--pink-deep);text-transform:uppercase;white-space:nowrap}
+.csep{width:1px;height:16px;background:var(--border)}
+select{background:#fff;color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:11px;outline:none;cursor:pointer;min-width:90px;font-weight:600}
+select:hover{border-color:var(--pink)}
+.srch{background:#fff;color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:11px;outline:none;width:200px}
+.srch:focus{border-color:var(--pink)}
+.reset-btn{background:#fff;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-left:auto}
+.reset-btn:hover{background:var(--red);color:#fff}
+
+.body{padding:18px 22px;flex:1}
+.sec{font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--pink-deep);display:flex;align-items:center;gap:10px;margin:14px 0 10px}
+.sec::before{content:'🍼';font-size:11px}
+.sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--pink) 0%,transparent 100%);opacity:.3}
+
+.krow{display:grid;grid-template-columns:repeat(8,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:#fff;padding:14px 16px;cursor:pointer;transition:.2s;border:1px solid var(--border);border-radius:12px;position:relative;overflow:hidden}
+.kpi:hover{background:var(--cream);transform:translateY(-1px)}
+.kpi.hi{background:linear-gradient(135deg,#FF8FA3 0%,#E5638C 100%);color:#fff;border-color:transparent}
+.kpi.hi:hover{background:linear-gradient(135deg,#FFA0B5 0%,#E76A95 100%)}
+.kpi.active{outline:2px solid var(--pink);outline-offset:-1px}
+.kl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--soft-text);margin-bottom:5px}
+.kpi.hi .kl{color:rgba(255,255,255,.85)}
+.kv{font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:var(--text)}
+.kpi.hi .kv{color:#fff}
+
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.stage{background:#fff;padding:13px 14px;border-top:3px solid;cursor:pointer;transition:.2s;border-radius:0 0 12px 12px}
+.stage:hover{background:var(--cream);transform:translateY(-1px)}
+.stage.active{background:var(--cream)}
+.stage[data-s=new]{border-color:#74AADD}.stage[data-s=contacted]{border-color:var(--yellow)}
+.stage[data-s=qualified]{border-color:var(--purple)}.stage[data-s=negotiation]{border-color:var(--warm)}
+.stage[data-s=closed]{border-color:var(--green)}
+.sl{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px}
+.stage[data-s=new] .sl{color:#74AADD}.stage[data-s=contacted] .sl{color:#D49A1F}
+.stage[data-s=qualified] .sl{color:var(--purple)}.stage[data-s=negotiation] .sl{color:var(--warm)}
+.stage[data-s=closed] .sl{color:var(--green)}
+.sc{font-size:26px;font-weight:900;font-family:'DM Mono',monospace;color:var(--text)}
+.sbar{height:3px;border-radius:2px;margin-top:7px;opacity:.5;transition:.6s}
+
+.feed{background:#fff;padding:10px 16px;margin-bottom:var(--gap);display:flex;align-items:center;gap:10px;overflow:hidden;border-left:3px solid var(--pink);border-radius:8px;border:1px solid var(--border)}
+.fdot{width:6px;height:6px;background:var(--pink);border-radius:50%;flex-shrink:0;animation:pulse 1.5s infinite}
+.flbl{font-size:8px;font-weight:700;letter-spacing:3px;color:var(--pink-deep);text-transform:uppercase;flex-shrink:0}
+.ftxt{font-size:11px;color:var(--soft-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-weight:500}
+
+.tbl-wrap{background:#fff;padding:16px 20px;overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:0 2px 12px rgba(229,99,140,.05)}
+.tbl-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.tbl-count{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--soft-text)}
+.tbl-count strong{color:var(--pink-deep);font-size:14px;font-weight:900}
+table{width:100%;border-collapse:collapse;min-width:960px}
+th{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pink-deep);text-align:left;padding:10px 10px;border-bottom:2px solid var(--border)}
+td{font-size:11px;color:var(--text);text-align:left;padding:9px 10px;border-bottom:1px solid rgba(229,99,140,.06);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--cream)}
+.pill{display:inline-block;padding:3px 9px;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:1px}
+.p-new{background:rgba(116,170,221,.2);color:#5A8AB8}.p-contacted{background:rgba(244,185,66,.18);color:#D49A1F}
+.p-qualified{background:rgba(184,155,201,.25);color:var(--purple)}.p-negotiation{background:rgba(255,176,136,.25);color:#D17B4F}
+.p-closed{background:rgba(91,185,135,.18);color:var(--green)}.p-lost{background:rgba(229,115,115,.18);color:var(--red)}
+.sdot2{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.av-sm{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;margin-right:7px;vertical-align:middle;flex-shrink:0;box-shadow:0 2px 4px rgba(229,99,140,.15)}
+.product-tag{display:inline-block;padding:2px 8px;background:var(--cream);color:var(--pink-deep);border-radius:6px;font-size:10px;font-weight:600;border:1px solid var(--border)}
+.by-wrap{display:flex;align-items:center;gap:5px}
+.by-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
+.soc-a{display:inline-block;padding:2px 7px;border-radius:6px;font-size:9px;font-weight:700;text-decoration:none;border:1px solid var(--border);color:var(--soft-text);margin-right:3px;transition:.15s}
+.soc-a:hover{border-color:var(--pink);color:var(--pink-deep);background:var(--cream)}
+.abtn{background:#fff;border:1px solid;padding:4px 10px;border-radius:6px;font-family:'Tajawal',sans-serif;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:.15s}
+.be{border-color:var(--yellow);color:#D49A1F}.be:hover{background:var(--yellow);color:#fff}
+.bd{border-color:var(--red);color:var(--red)}.bd:hover{background:var(--red);color:#fff}
+.bv{border-color:var(--pink);color:var(--pink-deep)}.bv:hover{background:var(--pink);color:#fff}
+.empty-row{text-align:center;padding:50px 20px;color:var(--soft-text)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-row p{font-size:13px;letter-spacing:1px;line-height:1.8}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(93,64,55,.5);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex}
+.modal{background:#fff;width:600px;max-width:96vw;max-height:90vh;overflow-y:auto;border-top:4px solid var(--pink);border-radius:16px;box-shadow:0 20px 60px rgba(229,99,140,.3)}
+.mh{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--cream)}
+.mt{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--pink-deep)}
+.mclose{background:transparent;border:none;color:var(--soft-text);font-size:18px;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.mclose:hover{color:var(--pink-deep)}
+.mbody{padding:22px}
+.mfoot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center;background:var(--cream)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg2 .fgr{display:flex;flex-direction:column;gap:4px}
+.fg2 .fgr.full{grid-column:1/-1}
+.fdiv{grid-column:1/-1;font-size:8px;font-weight:700;letter-spacing:3px;color:var(--pink-deep);text-transform:uppercase;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+.fs2{background:#fff;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:12px;outline:none;width:100%;transition:.2s;cursor:pointer;font-weight:500}
+.fs2:focus{border-color:var(--pink)}
+.soc2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.sw{display:flex;flex-direction:column;gap:3px}
+.slbl{font-size:8px;font-weight:700;letter-spacing:2px;color:var(--soft-text);text-transform:uppercase}
+.bsave{background:linear-gradient(135deg,#FF8FA3 0%,#E5638C 100%);color:#fff;border:none;padding:10px 24px;font-family:'Tajawal',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;border-radius:8px;box-shadow:0 2px 8px rgba(229,99,140,.25)}
+.bsave:hover{box-shadow:0 4px 12px rgba(229,99,140,.4)}
+.bsave:disabled{opacity:.5;cursor:not-allowed}
+.bcancel{background:#fff;border:1px solid var(--border);color:var(--soft-text);padding:10px 18px;font-family:'Tajawal',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border-radius:8px}
+.bcancel:hover{border-color:var(--text);color:var(--text)}
+.spin{display:none;font-size:10px;color:#D49A1F;letter-spacing:1px;align-items:center;gap:5px;margin-right:auto}
+.spin.on{display:flex}
+
+.users-modal{width:520px}
+.user-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(229,99,140,.08);gap:8px;flex-wrap:wrap}
+.user-row:last-child{border-bottom:none}
+.user-info{display:flex;align-items:center;gap:12px}
+.user-av-lg{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;position:relative;box-shadow:0 2px 6px rgba(229,99,140,.2)}
+.user-av-lg.online::after{content:'';position:absolute;bottom:0;right:0;width:11px;height:11px;background:var(--green);border-radius:50%;border:2px solid #fff}
+.user-nm{font-size:13px;font-weight:700;color:var(--text)}
+.user-mt{font-size:10px;color:var(--soft-text);margin-top:3px;letter-spacing:1px}
+.role-select{background:#fff;color:var(--text);border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-family:'Tajawal',sans-serif;font-size:11px;outline:none;cursor:pointer;font-weight:600}
+.role-select:hover{border-color:var(--pink)}
+.new-user-form{background:var(--cream);padding:16px;margin-top:14px;border-top:2px solid var(--pink);border-radius:12px}
+.new-user-title{font-size:10px;color:var(--pink-deep);letter-spacing:2px;font-weight:700;margin-bottom:12px}
+
+.toast-wrap{position:fixed;top:70px;right:14px;z-index:600;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#fff;border-right:3px solid var(--pink);padding:11px 15px;font-size:11px;font-weight:600;letter-spacing:1px;animation:tIn .3s ease;max-width:280px;box-shadow:0 6px 16px rgba(229,99,140,.15);border-radius:8px;color:var(--text)}
+.toast.ok{border-color:var(--green)}.toast.err{border-color:var(--red)}
+@keyframes tIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.footer{background:#fff;border-top:1px solid var(--border);padding:0 22px;height:34px;display:flex;align-items:center;justify-content:space-between;font-size:9px;color:var(--soft-text);flex-shrink:0;letter-spacing:1px}
+.fbrand{font-family:'Quicksand',sans-serif;font-weight:700;letter-spacing:3px;color:var(--pink-deep)}
+
+@media(max-width:1100px){.krow{grid-template-columns:repeat(4,1fr)}.pipeline{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.krow{grid-template-columns:repeat(2,1fr)}.pipeline{grid-template-columns:repeat(2,1fr)}.header{flex-wrap:wrap;height:auto;padding:8px 14px}.body{padding:12px 14px}}
+</style>
+</head>
+<body>
+
+<div class="screen" id="setupScreen">
+  <div class="box">
+    <div class="bh">
+      <div class="logo-wrap">
+        <span class="logo-icon">🍼</span>
+        <span class="logo">Bait Al Nono</span>
+      </div>
+      <div class="logo-ar">بيت النونو</div>
+      <div class="bsub">Baby Boutique CRM</div>
+    </div>
+    <div class="bb">
+      <div class="step-block">
+        <div class="sn">Step 01 — Firebase Database</div>
+        <div class="st">Setup Realtime Database</div>
+        <div class="sd">console.firebase.google.com → New Project (bait-al-nono) → Build → Realtime Database → Create → Test mode</div>
+      </div>
+      <div style="background:var(--cream);padding:14px;margin-bottom:14px;border-radius:10px">
+        <div class="frow">
+          <div class="fg"><label class="fl">API Key</label><input type="text" class="fi" id="cfgApi" placeholder="AIzaSy..."></div>
+          <div class="fg"><label class="fl">Auth Domain</label><input type="text" class="fi" id="cfgAuth" placeholder="bait-al-nono.firebaseapp.com"></div>
+          <div class="fg full"><label class="fl">Database URL <span style="color:var(--pink-deep)">★ Required</span></label><input type="text" class="fi" id="cfgDb" placeholder="https://bait-al-nono-default-rtdb.firebaseio.com"></div>
+          <div class="fg"><label class="fl">Project ID</label><input type="text" class="fi" id="cfgPid" placeholder="bait-al-nono"></div>
+          <div class="fg"><label class="fl">App ID</label><input type="text" class="fi" id="cfgApp" placeholder="1:xxx:web:xxx"></div>
+        </div>
+      </div>
+      <div class="step-block" style="border-color:var(--warm)">
+        <div class="sn">Step 02 — Admin Account</div>
+        <div class="st">Your admin login</div>
+        <div class="frow" style="margin-top:10px">
+          <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="cfgName" placeholder="Salih"></div>
+          <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="cfgPass" placeholder="Min 4 chars"></div>
+        </div>
+      </div>
+      <button class="big-btn" onclick="doSetup()">CONNECT & LAUNCH →</button>
+      <div class="err" id="setupErr"></div>
+    </div>
+    <div class="bf">🍼 BAIT AL NONO · WITH LOVE 🍼</div>
+  </div>
+</div>
+
+<div class="screen" id="loginScreen">
+  <div class="login-box">
+    <div class="bh">
+      <div class="logo-wrap">
+        <span class="logo-icon">🍼</span>
+        <span class="logo">Bait Al Nono</span>
+      </div>
+      <div class="logo-ar">بيت النونو</div>
+      <div class="bsub">Sign in</div>
+    </div>
+    <div class="bb">
+      <div id="savedUsersWrap" style="display:none;margin-bottom:14px">
+        <label class="fl">Quick Sign In</label>
+        <div class="saved-users" id="savedUsersList"></div>
+      </div>
+      <label class="fl">Name</label>
+      <input type="text" class="name-inp" id="loginName" placeholder="Your name">
+      <label class="fl" style="margin-top:10px">Password</label>
+      <input type="password" class="name-inp" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="big-btn" onclick="doLogin()">SIGN IN →</button>
+      <div class="err" id="loginErr"></div>
+      <div class="online-pill"><div class="pdot"></div>REAL-TIME · TEAM CRM</div>
+    </div>
+    <div class="bf" id="loginFooter">🍼 BAIT AL NONO 🍼</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div class="hlogo">
+      <span class="hlogo-icon">🍼</span>
+      <span class="hlogo-text">Bait Al Nono</span>
+    </div>
+    <div class="hmid">
+      <div class="sync-badge sb-con" id="syncBadge"><div class="sdot"></div><span id="syncTxt">CONNECTING</span></div>
+      <div class="online-avs" id="onlineAvs"></div>
+    </div>
+    <div class="hright">
+      <div class="user-chip">
+        <div class="user-av" id="headerAv"></div>
+        <div class="user-meta">
+          <div class="user-name" id="headerName"></div>
+          <div class="user-role" id="headerRole"></div>
+        </div>
+      </div>
+      <button class="hbtn hbtn-users" id="btnUsers" onclick="openUsers()" style="display:none">USERS</button>
+      <button class="hbtn hbtn-add" id="btnAdd" onclick="openLeadModal()" style="display:none">+ ADD CUSTOMER</button>
+      <button class="hbtn hbtn-out" onclick="doLogout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="clbl">Status</span>
+    <select id="fSt" onchange="renderTable()">
+      <option value="all">All Status</option>
+      <option value="new">New</option>
+      <option value="contacted">Contacted</option>
+      <option value="qualified">Qualified</option>
+      <option value="negotiation">Negotiation</option>
+      <option value="closed">Closed</option>
+      <option value="lost">Lost</option>
+    </select>
+    <div class="csep"></div>
+    <span class="clbl">Source</span>
+    <select id="fSrc" onchange="renderTable()">
+      <option value="all">All Sources</option>
+      <option value="meta">Meta</option>
+      <option value="instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="whatsapp">WhatsApp</option>
+      <option value="referral">Referral</option>
+      <option value="walk_in">Walk-in</option>
+    </select>
+    <div class="csep"></div>
+    <span class="clbl">Product</span>
+    <select id="fProd" onchange="renderTable()">
+      <option value="all">All Products</option>
+      <option value="clothes">Baby Clothes</option>
+      <option value="furniture">Furniture</option>
+      <option value="strollers">Strollers</option>
+      <option value="toys">Toys</option>
+      <option value="bedding">Bedding</option>
+      <option value="feeding">Feeding</option>
+      <option value="bath">Bath & Care</option>
+      <option value="gift_set">Gift Sets</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="text" class="srch" id="fQ" placeholder="🔍 Search name, phone, product..." oninput="renderTable()">
+    <span class="clbl">Added By</span>
+    <select id="fBy" onchange="renderTable()"><option value="all">Everyone</option></select>
+    <button class="reset-btn" onclick="resetFilters()">RESET</button>
+  </div>
+
+  <div class="body">
+    <div class="sec">Overview · Click any KPI to filter</div>
+    <div class="krow">
+      <div class="kpi hi" onclick="setStatusFilter('all')"><div class="kl">Total</div><div class="kv" id="k0">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('new')"><div class="kl">New</div><div class="kv" id="k1">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('contacted')"><div class="kl">Contacted</div><div class="kv" id="k2">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('qualified')"><div class="kl">Qualified</div><div class="kv" id="k3">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('negotiation')"><div class="kl">Negotiation</div><div class="kv" id="k4">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('closed')"><div class="kl">Closed</div><div class="kv" id="k5">0</div></div>
+      <div class="kpi" onclick="setStatusFilter('lost')"><div class="kl">Lost</div><div class="kv" id="k6">0</div></div>
+      <div class="kpi"><div class="kl">Conversion</div><div class="kv" id="k7">0%</div></div>
+    </div>
+    <div class="sec">Pipeline</div>
+    <div class="pipeline">
+      <div class="stage" data-s="new" onclick="setStatusFilter('new')"><div class="sl">New</div><div class="sc" id="ps0">0</div><div class="sbar" id="pb0" style="background:#74AADD;width:0%"></div></div>
+      <div class="stage" data-s="contacted" onclick="setStatusFilter('contacted')"><div class="sl">Contacted</div><div class="sc" id="ps1">0</div><div class="sbar" id="pb1" style="background:var(--yellow);width:0%"></div></div>
+      <div class="stage" data-s="qualified" onclick="setStatusFilter('qualified')"><div class="sl">Qualified</div><div class="sc" id="ps2">0</div><div class="sbar" id="pb2" style="background:var(--purple);width:0%"></div></div>
+      <div class="stage" data-s="negotiation" onclick="setStatusFilter('negotiation')"><div class="sl">Negotiation</div><div class="sc" id="ps3">0</div><div class="sbar" id="pb3" style="background:var(--warm);width:0%"></div></div>
+      <div class="stage" data-s="closed" onclick="setStatusFilter('closed')"><div class="sl">Closed ✓</div><div class="sc" id="ps4">0</div><div class="sbar" id="pb4" style="background:var(--green);width:0%"></div></div>
+    </div>
+    <div class="feed"><div class="fdot"></div><div class="flbl">LIVE</div><div class="ftxt" id="feedTxt">Connecting to live feed...</div></div>
+    <div class="tbl-wrap">
+      <div class="tbl-info">
+        <div class="tbl-count">SHOWING <strong id="visibleCount">0</strong> OF <strong id="totalCount">0</strong> CUSTOMERS</div>
+        <div id="filterStatus" style="font-size:10px;color:var(--soft-text);letter-spacing:1px"></div>
+      </div>
+      <table>
+        <thead><tr>
+          <th style="width:160px">Customer</th>
+          <th style="width:115px">Phone</th>
+          <th style="width:130px">Product Interest</th>
+          <th style="width:80px">Source</th>
+          <th style="width:95px">Status</th>
+          <th style="width:90px">Follow-up</th>
+          <th style="width:130px">Social</th>
+          <th style="width:130px">Notes</th>
+          <th style="width:110px">Added By</th>
+          <th style="width:100px">Actions</th>
+        </tr></thead>
+        <tbody id="leadsBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="footer">
+    <span id="footTxt">Initializing...</span>
+    <span class="fbrand">🍼 Bait Al Nono 🍼</span>
+  </div>
+</div>
+
+<div class="overlay" id="leadModal">
+  <div class="modal">
+    <div class="mh"><div class="mt" id="leadModalTitle">+ ADD NEW CUSTOMER</div><button class="mclose" onclick="closeModal('leadModal')">✕</button></div>
+    <div class="mbody">
+      <input type="hidden" id="editId">
+      <div class="fg2">
+        <div class="fgr"><label class="fl">Customer Name *</label><input type="text" class="fi" id="fName" placeholder="Sarah Mohammed"></div>
+        <div class="fgr"><label class="fl">Phone</label><input type="text" class="fi" id="fPhone" placeholder="07801234567"></div>
+        <div class="fgr full"><label class="fl">🍼 Product of Interest</label>
+          <select class="fs2" id="fProduct">
+            <option value="">— Select Product —</option>
+            <option value="clothes">👕 Baby Clothes</option>
+            <option value="furniture">🛏️ Furniture (Cribs / Beds)</option>
+            <option value="strollers">🚼 Strollers & Car Seats</option>
+            <option value="toys">🧸 Toys</option>
+            <option value="bedding">🛌 Bedding & Mattresses</option>
+            <option value="feeding">🍼 Feeding Items</option>
+            <option value="bath">🛁 Bath & Care</option>
+            <option value="gift_set">🎁 Gift Sets</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="fgr full"><label class="fl">Product Details</label><input type="text" class="fi" id="fProductDetails" placeholder="e.g. Pink crib, size 6-12 months..."></div>
+        <div class="fgr"><label class="fl">Source</label><select class="fs2" id="fSource"><option value="instagram">Instagram</option><option value="meta">Meta / Facebook</option><option value="tiktok">TikTok</option><option value="whatsapp">WhatsApp</option><option value="referral">Referral</option><option value="walk_in">Walk-in</option></select></div>
+        <div class="fgr"><label class="fl">Status</label><select class="fs2" id="fStatus"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="negotiation">Negotiation</option><option value="closed">Closed</option><option value="lost">Lost</option></select></div>
+        <div class="fgr"><label class="fl">Follow-up Date</label><input type="date" class="fi" id="fFu"></div>
+        <div class="fgr"><label class="fl">Budget / Price</label><input type="text" class="fi" id="fBudget" placeholder="e.g. $150"></div>
+        <div class="fgr full"><label class="fl">Notes</label><input type="text" class="fi" id="fNotes" placeholder="Customer preferences, special requests..."></div>
+        <div class="fdiv">Social Media Links</div>
+        <div class="fgr full">
+          <div class="soc2">
+            <div class="sw"><div class="slbl">Instagram</div><input type="url" class="fi" id="sIg" placeholder="https://instagram.com/..."></div>
+            <div class="sw"><div class="slbl">Facebook</div><input type="url" class="fi" id="sFb" placeholder="https://facebook.com/..."></div>
+            <div class="sw"><div class="slbl">TikTok</div><input type="url" class="fi" id="sTt" placeholder="https://tiktok.com/@..."></div>
+            <div class="sw"><div class="slbl">WhatsApp</div><input type="url" class="fi" id="sWa" placeholder="https://wa.me/964..."></div>
+            <div class="sw"><div class="slbl">Snapchat</div><input type="url" class="fi" id="sSn" placeholder="https://snapchat.com/add/..."></div>
+            <div class="sw"><div class="slbl">Other</div><input type="url" class="fi" id="sOt" placeholder="https://..."></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <div class="spin" id="saveSpin"><div style="width:7px;height:7px;background:var(--yellow);border-radius:50%;animation:pulse 1s infinite"></div>SAVING...</div>
+      <button class="bcancel" onclick="closeModal('leadModal')">CANCEL</button>
+      <button class="bsave" id="saveBtn" onclick="saveLead()">SAVE CUSTOMER</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="usersModal">
+  <div class="modal users-modal">
+    <div class="mh"><div class="mt">TEAM MANAGEMENT</div><button class="mclose" onclick="closeModal('usersModal')">✕</button></div>
+    <div class="mbody">
+      <div style="font-size:10px;color:var(--pink-deep);letter-spacing:2px;margin-bottom:12px;font-weight:700">ACTIVE USERS</div>
+      <div id="usersList"></div>
+      <div class="new-user-form">
+        <div class="new-user-title">+ ADD NEW TEAM MEMBER</div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="newUserName" placeholder="Team member name"></div>
+          <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="newUserPass" placeholder="Min 4 chars"></div>
+          <div class="fg"><label class="fl">Role</label>
+            <select class="fs2" id="newUserRole">
+              <option value="manager">Manager (add/edit customers)</option>
+              <option value="viewer">Viewer (read only)</option>
+              <option value="admin">Admin (full access)</option>
+            </select>
+          </div>
+          <div class="fg" style="display:flex;align-items:flex-end">
+            <button class="bsave" style="width:100%" onclick="addUser()">ADD MEMBER</button>
+          </div>
+        </div>
+        <div class="err" id="addUserErr"></div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="bcancel" onclick="closeModal('usersModal')">CLOSE</button></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const CFG_KEY='nono_cfg_v1',USER_KEY='nono_user_v1';
+const FIREBASE_CFG={
+  databaseURL:'https://bait-al-nono-default-rtdb.firebaseio.com',
+  projectId:'bait-al-nono',
+  authDomain:'bait-al-nono.firebaseapp.com'
+};
+const UC=['#FF8FA3','#74AADD','#B89BC9','#5BB987','#F4B942','#FFB088','#E5638C','#A8DCC4'];
+const ucMap={};
+const srcCol={meta:'#1877F2',instagram:'#E1306C',tiktok:'#69C9D0',whatsapp:'#25D366',referral:'#B89BC9',walk_in:'#FFB088'};
+const stPill={new:'pill p-new',contacted:'pill p-contacted',qualified:'pill p-qualified',negotiation:'pill p-negotiation',closed:'pill p-closed',lost:'pill p-lost'};
+const stLabel={new:'New',contacted:'Contacted',qualified:'Qualified',negotiation:'Negotiation',closed:'Closed',lost:'Lost'};
+const productLabel={
+  clothes:'👕 Clothes',
+  furniture:'🛏️ Furniture',
+  strollers:'🚼 Strollers',
+  toys:'🧸 Toys',
+  bedding:'🛌 Bedding',
+  feeding:'🍼 Feeding',
+  bath:'🛁 Bath',
+  gift_set:'🎁 Gift Set',
+  other:'📦 Other'
+};
+
+let db,leadsRef,usersRef,presenceRef,feedRef;
+let currentUser=null,leads={},users={},onlinePresence={},presInt=null;
+
+function uc(name){if(!ucMap[name]){ucMap[name]=UC[Object.keys(ucMap).length%UC.length];}return ucMap[name];}
+function loadCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY));}catch{return null;}}
+function saveCfg(c){localStorage.setItem(CFG_KEY,JSON.stringify(c));}
+function loadUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch{return null;}}
+function saveUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
+function clearUser(){localStorage.removeItem(USER_KEY);}
+function slugify(s){return String(s||'').toLowerCase().trim().replace(/[^a-z0-9]/g,'_');}
+function esc(s){return String(s||'').replace(/[<>"']/g,c=>({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function show(id){document.getElementById(id).classList.add('on');}
+function hide(id){document.getElementById(id).classList.remove('on');}
+function g(id){const e=document.getElementById(id);return e?e.value:'';}
+function sv(id,val){const e=document.getElementById(id);if(e)e.value=val||'';}
+function se(id,txt){const e=document.getElementById(id);if(e)e.textContent=txt||'';}
+
+function initFirebase(cfg){
+  if(!firebase.apps.length) firebase.initializeApp(cfg);
+  db=firebase.database();
+  leadsRef=db.ref('leads');
+  usersRef=db.ref('users');
+  presenceRef=db.ref('presence');
+  feedRef=db.ref('feed');
+}
+
+async function doSetup(){
+  const cfg=FIREBASE_CFG;
+  const name=g('cfgName').trim(),pass=g('cfgPass').trim();
+  if(!name){se('setupErr','Your name is required');return;}
+  if(!pass||pass.length<4){se('setupErr','Password must be at least 4 characters');return;}
+  try{
+    initFirebase(cfg);
+    const slug=slugify(name);
+    const snap=await usersRef.child(slug).get();
+    if(!snap.exists()){
+      await usersRef.child(slug).set({name,role:'admin',pass:btoa(pass),createdAt:Date.now()});
+    }
+    saveCfg(cfg);
+    toast('Setup complete!','ok');
+    showLogin();
+  }catch(e){
+    const denied=/permission|denied/i.test(e.message||'');
+    se('setupErr', denied
+      ? '⚠️ Permission denied — انشر قواعد Firebase (Publish) بعدين جرّب.'
+      : ('Firebase error: '+e.message));
+  }
+}
+
+function showLogin(){hide('setupScreen');show('loginScreen');loadSavedUsers();}
+
+async function loadSavedUsers(){
+  try{
+    const snap=await usersRef.get();
+    const wrap=document.getElementById('savedUsersWrap');
+    if(!snap.exists()){wrap.style.display='none';return;}
+    const all=Object.values(snap.val());
+    if(all.length>0){
+      wrap.style.display='block';
+      document.getElementById('savedUsersList').innerHTML=all.map(u=>`
+        <button class="saved-user-btn" onclick="quickLogin('${esc(u.name).replace(/'/g,'&apos;')}')">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:${uc(u.name)};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${u.name.slice(0,2).toUpperCase()}</div>
+            <span>${esc(u.name)}</span>
+          </div>
+          <span class="role-badge r-${u.role}">${u.role.toUpperCase()}</span>
+        </button>`).join('');
+    } else wrap.style.display='none';
+  }catch(e){console.error(e);}
+}
+
+function quickLogin(name){
+  const decoded=name.replace(/&apos;/g,"'");
+  document.getElementById('loginName').value=decoded;
+  document.getElementById('loginPass').focus();
+}
+
+async function doLogin(){
+  const name=g('loginName').trim(),pass=g('loginPass').trim();
+  if(!name){se('loginErr','Enter your name');return;}
+  if(!pass){se('loginErr','Enter your password');return;}
+  try{
+    const snap=await usersRef.child(slugify(name)).get();
+    if(!snap.exists()){se('loginErr','User not found. Ask admin to add you.');return;}
+    const u=snap.val();
+    if(atob(u.pass||'')!==pass){se('loginErr','Wrong password');return;}
+    currentUser={name:u.name,role:u.role,color:uc(u.name),slug:slugify(u.name)};
+    saveUser(currentUser);
+    se('loginErr','');
+    hide('loginScreen');
+    launchApp();
+  }catch(e){
+    const denied=/permission|denied/i.test(e.message||'');
+    se('loginErr', denied
+      ? '⚠️ القواعد مو منشورة — افتح Firebase → Rules واضغط Publish'
+      : ('Error: '+e.message));
+  }
+}
+
+function doLogout(){
+  if(presInt)clearInterval(presInt);
+  if(presenceRef&&currentUser)presenceRef.child(currentUser.slug).remove();
+  if(leadsRef)leadsRef.off();
+  if(usersRef)usersRef.off();
+  if(presenceRef)presenceRef.off();
+  if(feedRef)feedRef.off();
+  currentUser=null;clearUser();
+  leads={};users={};onlinePresence={};
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('loginPass').value='';
+  se('loginErr','');
+  show('loginScreen');
+  loadSavedUsers();
+}
+
+function launchApp(){
+  document.getElementById('app').classList.add('on');
+  const av=document.getElementById('headerAv');
+  av.style.background=currentUser.color;
+  av.textContent=currentUser.name.slice(0,2).toUpperCase();
+  document.getElementById('headerName').textContent=currentUser.name.toUpperCase();
+  const rEl=document.getElementById('headerRole');
+  const rColors={admin:'var(--pink-deep)',manager:'var(--green)',viewer:'var(--purple)'};
+  rEl.textContent=currentUser.role.toUpperCase();
+  rEl.style.color=rColors[currentUser.role]||'var(--text)';
+  document.getElementById('btnUsers').style.display=currentUser.role==='admin'?'':'none';
+  document.getElementById('btnAdd').style.display=currentUser.role!=='viewer'?'':'none';
+  startListeners();
+  startPresence();
+}
+
+function startListeners(){
+  setSyncBadge('con','CONNECTING');
+  leadsRef.on('value',snap=>{
+    const prevIds=new Set(Object.keys(leads));
+    leads=snap.val()||{};
+    Object.keys(leads).forEach(id=>{
+      if(!prevIds.has(id)&&leads[id].addedBy!==currentUser.name){
+        toast(`${leads[id].addedBy} added: ${leads[id].name}`,'ok');
+      }
+    });
+    renderAll();
+    setSyncBadge('live','LIVE');
+    document.getElementById('footTxt').textContent='Last sync: '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  },err=>{setSyncBadge('off','OFFLINE');toast('Connection: '+err.message,'err');});
+  
+  usersRef.on('value',snap=>{users=snap.val()||{};renderUsersList();});
+  presenceRef.on('value',snap=>{onlinePresence=snap.val()||{};renderOnline();renderUsersList();});
+  feedRef.limitToLast(1).on('child_added',snap=>{
+    const m=snap.val();
+    if(m&&m.text)document.getElementById('feedTxt').textContent=m.text;
+  });
+}
+
+async function pushFeed(text){
+  if(!feedRef)return;
+  try{await feedRef.push({text:`[${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}] ${text}`,ts:Date.now()});}catch{}
+}
+
+function startPresence(){
+  const update=()=>{if(presenceRef&&currentUser)presenceRef.child(currentUser.slug).set({name:currentUser.name,role:currentUser.role,ts:Date.now()});};
+  update();
+  presInt=setInterval(update,8000);
+  if(presenceRef&&currentUser)presenceRef.child(currentUser.slug).onDisconnect().remove();
+}
+
+function renderAll(){
+  const arr=Object.values(leads);
+  document.getElementById('totalCount').textContent=arr.length;
+  updateKPIs(arr);
+  updatePipeline(arr);
+  updateUserFilter(arr);
+  renderTable();
+}
+
+function updateKPIs(arr){
+  document.getElementById('k0').textContent=arr.length;
+  ['new','contacted','qualified','negotiation','closed','lost'].forEach((s,i)=>{
+    document.getElementById('k'+(i+1)).textContent=arr.filter(l=>l.status===s).length;
+  });
+  const closed=arr.filter(l=>l.status==='closed').length;
+  document.getElementById('k7').textContent=arr.length?Math.round(closed/arr.length*100)+'%':'0%';
+}
+
+function updatePipeline(arr){
+  const stages=['new','contacted','qualified','negotiation','closed'];
+  const counts=stages.map(s=>arr.filter(l=>l.status===s).length);
+  const mx=Math.max(...counts,1);
+  counts.forEach((c,i)=>{
+    document.getElementById('ps'+i).textContent=c;
+    document.getElementById('pb'+i).style.width=Math.round(c/mx*100)+'%';
+  });
+  const cur=g('fSt');
+  document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('active',s.dataset.s===cur));
+}
+
+function getFiltered(){
+  const st=g('fSt')||'all',src=g('fSrc')||'all',prod=g('fProd')||'all',by=g('fBy')||'all';
+  const q=(g('fQ')||'').toLowerCase().trim();
+  return Object.values(leads).filter(l=>{
+    if(st!=='all'&&l.status!==st)return false;
+    if(src!=='all'&&l.source!==src)return false;
+    if(prod!=='all'&&l.product!==prod)return false;
+    if(by!=='all'&&l.addedBy!==by)return false;
+    if(q){
+      const hay=[l.name,l.phone,l.notes,l.productDetails,l.addedBy].filter(Boolean).join(' ').toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  }).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+}
+
+function renderTable(){
+  const data=getFiltered();
+  const tbody=document.getElementById('leadsBody');
+  document.getElementById('visibleCount').textContent=data.length;
+  
+  const st=g('fSt'),src=g('fSrc'),prod=g('fProd'),q=g('fQ'),by=g('fBy');
+  const f=[];
+  if(st!=='all')f.push(`Status: ${stLabel[st]||st}`);
+  if(src!=='all')f.push(`Source: ${src}`);
+  if(prod!=='all')f.push(`Product: ${productLabel[prod]||prod}`);
+  if(by!=='all')f.push(`By: ${by}`);
+  if(q)f.push(`"${q}"`);
+  document.getElementById('filterStatus').textContent=f.length?'🍼 '+f.join(' · '):'';
+  
+  if(!data.length){
+    const total=Object.keys(leads).length;
+    if(total===0){
+      tbody.innerHTML=`<tr><td colspan="10"><div class="empty-row"><div class="empty-icon">🍼</div><p>No customers yet.<br>Click <strong style="color:var(--pink-deep)">+ ADD CUSTOMER</strong> to start.</p></div></td></tr>`;
+    } else {
+      tbody.innerHTML=`<tr><td colspan="10"><div class="empty-row"><div class="empty-icon">🔍</div><p>No customers match your filters.<br><br><button class="abtn bv" onclick="resetFilters()">CLEAR FILTERS</button></p></div></td></tr>`;
+    }
+    document.querySelectorAll('.kpi').forEach(k=>k.classList.remove('active'));
+    return;
+  }
+  
+  const today=new Date().toISOString().split('T')[0];
+  const canEdit=currentUser.role!=='viewer';
+  
+  tbody.innerHTML=data.map(l=>{
+    const init=(l.name||'?').split(' ').slice(0,2).map(w=>(w[0]||'')).join('').toUpperCase();
+    const fuColor=l.followup?(l.followup<today?'var(--red)':l.followup===today?'#D49A1F':'var(--text)'):'#C9B8AE';
+    const soc=[
+      l.ig&&`<a class="soc-a" href="${esc(l.ig)}" target="_blank" rel="noopener">IG</a>`,
+      l.fb&&`<a class="soc-a" href="${esc(l.fb)}" target="_blank" rel="noopener">FB</a>`,
+      l.tt&&`<a class="soc-a" href="${esc(l.tt)}" target="_blank" rel="noopener">TT</a>`,
+      l.wa&&`<a class="soc-a" href="${esc(l.wa)}" target="_blank" rel="noopener" style="color:var(--green);border-color:rgba(91,185,135,.4)">WA</a>`,
+      l.sn&&`<a class="soc-a" href="${esc(l.sn)}" target="_blank" rel="noopener">SC</a>`,
+      l.ot&&`<a class="soc-a" href="${esc(l.ot)}" target="_blank" rel="noopener">🔗</a>`
+    ].filter(Boolean).join('');
+    const byColor=uc(l.addedBy||'?');
+    const canDel=currentUser.role==='admin'||(currentUser.role==='manager'&&l.addedBy===currentUser.name);
+    const productDisplay=l.product?`<span class="product-tag">${productLabel[l.product]||esc(l.product)}</span>${l.productDetails?`<div style="font-size:9px;color:var(--soft-text);margin-top:3px">${esc(l.productDetails)}</div>`:''}`:'<span style="color:#C9B8AE;font-size:10px">—</span>';
+    return `<tr>
+      <td><span class="av-sm" style="background:${srcCol[l.source]||'#999'}">${init}</span><span style="font-weight:700">${esc(l.name||'—')}</span>${l.budget?`<div style="font-size:9px;color:var(--green);font-weight:700;margin-top:2px;margin-right:38px">${esc(l.budget)}</div>`:''}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px">${esc(l.phone||'—')}</td>
+      <td>${productDisplay}</td>
+      <td><span class="sdot2" style="background:${srcCol[l.source]||'#888'}"></span>${esc(l.source||'—')}</td>
+      <td><span class="${stPill[l.status]||'pill'}">${stLabel[l.status]||esc(l.status||'—')}</span></td>
+      <td style="font-size:10px;color:${fuColor};font-weight:600">${esc(l.followup||'—')}</td>
+      <td>${soc||'<span style="color:#C9B8AE;font-size:9px">—</span>'}</td>
+      <td style="font-size:10px;color:var(--soft-text);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(l.notes||'')}">${esc(l.notes||'—')}</td>
+      <td><div class="by-wrap"><div class="by-av" style="background:${byColor}">${(l.addedBy||'?').slice(0,2).toUpperCase()}</div><span style="font-size:10px;font-weight:700">${esc(l.addedBy||'?')}</span></div></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${canEdit?`<button class="abtn be" onclick="editLead('${l.id}')">EDIT</button>`:''}
+        ${canDel?`<button class="abtn bd" onclick="deleteLead('${l.id}')">DEL</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+  
+  document.querySelectorAll('.kpi').forEach(k=>k.classList.remove('active'));
+  const sIdx=['all','new','contacted','qualified','negotiation','closed','lost'].indexOf(st);
+  if(sIdx>=0){
+    const kpis=document.querySelectorAll('.kpi');
+    if(kpis[sIdx])kpis[sIdx].classList.add('active');
+  }
+}
+
+function renderOnline(){
+  const cutoff=Date.now()-25000;
+  const active=Object.values(onlinePresence).filter(u=>u.ts>cutoff);
+  document.getElementById('onlineAvs').innerHTML=active.map(u=>
+    `<div class="oav" style="background:${uc(u.name)}" title="${esc(u.name)} (${u.role}) — online">${u.name.slice(0,2).toUpperCase()}</div>`
+  ).join('');
+}
+
+function renderUsersList(){
+  if(!currentUser||currentUser.role!=='admin')return;
+  const list=document.getElementById('usersList');
+  if(!list)return;
+  const all=Object.values(users);
+  const cutoff=Date.now()-25000;
+  list.innerHTML=all.map(u=>{
+    const isOnline=Object.values(onlinePresence).some(p=>p.name===u.name&&p.ts>cutoff);
+    const slug=slugify(u.name);
+    return `<div class="user-row">
+      <div class="user-info">
+        <div class="user-av-lg ${isOnline?'online':''}" style="background:${uc(u.name)}">${u.name.slice(0,2).toUpperCase()}</div>
+        <div>
+          <div class="user-nm">${esc(u.name)} ${u.name===currentUser.name?'<span style="color:var(--pink-deep);font-size:10px">(you)</span>':''}</div>
+          <div class="user-mt">${u.role.toUpperCase()} · ${isOnline?'<span style="color:var(--green)">● ONLINE</span>':'OFFLINE'}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${u.name!==currentUser.name?`
+          <select class="role-select" onchange="changeRole('${slug}','${esc(u.name).replace(/'/g,'&apos;')}',this.value)">
+            <option value="admin"${u.role==='admin'?' selected':''}>Admin</option>
+            <option value="manager"${u.role==='manager'?' selected':''}>Manager</option>
+            <option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option>
+          </select>
+          <button class="abtn bd" onclick="removeUser('${slug}','${esc(u.name).replace(/'/g,'&apos;')}')">REMOVE</button>
+        `:`<span class="role-badge r-${u.role}">${u.role.toUpperCase()}</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateUserFilter(arr){
+  const sel=document.getElementById('fBy');
+  const cur=sel.value;
+  const names=[...new Set(arr.map(l=>l.addedBy).filter(Boolean))];
+  sel.innerHTML='<option value="all">Everyone</option>'+names.map(n=>`<option value="${esc(n)}"${cur===n?' selected':''}>${esc(n)}</option>`).join('');
+}
+
+function setStatusFilter(s){
+  document.getElementById('fSt').value=s;
+  renderTable();
+  updatePipeline(Object.values(leads));
+}
+
+function resetFilters(){
+  document.getElementById('fSt').value='all';
+  document.getElementById('fSrc').value='all';
+  document.getElementById('fProd').value='all';
+  document.getElementById('fBy').value='all';
+  document.getElementById('fQ').value='';
+  renderTable();
+  updatePipeline(Object.values(leads));
+  toast('Filters cleared','ok');
+}
+
+function openLeadModal(editId=null){
+  if(currentUser.role==='viewer'){toast('Viewers cannot add customers','err');return;}
+  document.getElementById('editId').value=editId||'';
+  document.getElementById('leadModalTitle').textContent=editId?'✎ EDIT CUSTOMER':'+ ADD NEW CUSTOMER';
+  if(editId&&leads[editId]){
+    const l=leads[editId];
+    sv('fName',l.name);sv('fPhone',l.phone);
+    sv('fProduct',l.product||'');sv('fProductDetails',l.productDetails);
+    sv('fSource',l.source||'instagram');sv('fStatus',l.status||'new');
+    sv('fFu',l.followup);sv('fBudget',l.budget);sv('fNotes',l.notes);
+    sv('sFb',l.fb);sv('sIg',l.ig);sv('sTt',l.tt);sv('sWa',l.wa);sv('sSn',l.sn);sv('sOt',l.ot);
+  } else {
+    ['fName','fPhone','fProductDetails','fFu','fBudget','fNotes','sFb','sIg','sTt','sWa','sSn','sOt'].forEach(id=>{
+      const e=document.getElementById(id);if(e)e.value='';
+    });
+    sv('fProduct','');sv('fSource','instagram');sv('fStatus','new');
+  }
+  document.getElementById('leadModal').classList.add('on');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+function editLead(id){openLeadModal(id);}
+
+async function saveLead(){
+  const name=g('fName').trim();
+  if(!name){toast('Customer name is required','err');return;}
+  const editId=g('editId');
+  document.getElementById('saveSpin').classList.add('on');
+  document.getElementById('saveBtn').disabled=true;
+  const id=editId||leadsRef.push().key;
+  const lead={id,name,
+    phone:g('fPhone').trim(),
+    product:g('fProduct'),
+    productDetails:g('fProductDetails').trim(),
+    source:g('fSource'),status:g('fStatus'),
+    followup:g('fFu'),budget:g('fBudget').trim(),notes:g('fNotes').trim(),
+    fb:g('sFb').trim(),ig:g('sIg').trim(),tt:g('sTt').trim(),wa:g('sWa').trim(),sn:g('sSn').trim(),ot:g('sOt').trim(),
+    addedBy:currentUser.name,
+    createdAt:editId?(leads[editId]?.createdAt||Date.now()):Date.now(),
+    updatedAt:Date.now()};
+  try{
+    await leadsRef.child(id).set(lead);
+    await pushFeed(`${currentUser.name} ${editId?'updated':'added'} "${name}"`);
+    toast(`${editId?'Updated':'Added'}: ${name}`,'ok');
+    closeModal('leadModal');
+  }catch(e){toast('Save failed: '+e.message,'err');}
+  document.getElementById('saveSpin').classList.remove('on');
+  document.getElementById('saveBtn').disabled=false;
+}
+
+async function deleteLead(id){
+  const l=leads[id];
+  if(!l||!confirm(`Delete "${l.name}"?`))return;
+  try{
+    await leadsRef.child(id).remove();
+    await pushFeed(`${currentUser.name} deleted "${l.name}"`);
+    toast(`Deleted: ${l.name}`,'err');
+  }catch(e){toast('Delete failed: '+e.message,'err');}
+}
+
+function openUsers(){renderUsersList();document.getElementById('usersModal').classList.add('on');}
+
+async function addUser(){
+  const name=g('newUserName').trim(),pass=g('newUserPass').trim(),role=g('newUserRole');
+  if(!name){se('addUserErr','Name required');return;}
+  if(!pass||pass.length<4){se('addUserErr','Password min 4 chars');return;}
+  const slug=slugify(name);
+  const snap=await usersRef.child(slug).get();
+  if(snap.exists()){se('addUserErr','User already exists');return;}
+  await usersRef.child(slug).set({name,role,pass:btoa(pass),createdAt:Date.now()});
+  document.getElementById('newUserName').value='';
+  document.getElementById('newUserPass').value='';
+  se('addUserErr','');
+  toast(`Added: ${name} as ${role}`,'ok');
+  await pushFeed(`${currentUser.name} added "${name}" (${role})`);
+}
+
+async function changeRole(slug,name,role){
+  const decoded=name.replace(/&apos;/g,"'");
+  await usersRef.child(slug).update({role});
+  toast(`${decoded} is now ${role}`,'ok');
+}
+
+async function removeUser(slug,name){
+  const decoded=name.replace(/&apos;/g,"'");
+  if(!confirm(`Remove ${decoded} from the team?`))return;
+  await usersRef.child(slug).remove();
+  toast(`Removed: ${decoded}`,'err');
+}
+
+function setSyncBadge(type,text){
+  const el=document.getElementById('syncBadge');
+  el.className='sync-badge sb-'+type;
+  document.getElementById('syncTxt').textContent=text;
+}
+
+function toast(msg,type='ok'){
+  const wrap=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.textContent=msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400);},3500);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal('leadModal');closeModal('usersModal');}
+});
+
+(function boot(){
+  try{
+    initFirebase(FIREBASE_CFG);
+  }catch(e){
+    show('setupScreen');
+    se('setupErr','Firebase init failed: '+e.message);
+    return;
+  }
+  // Probe the database to find out the real state instead of guessing.
+  usersRef.get().then(snap=>{
+    const hasUsers = snap.exists() && Object.keys(snap.val()||{}).length>0;
+    if(hasUsers){
+      const saved=loadUser();
+      if(saved&&saved.name){
+        document.getElementById('loginName').value=saved.name;
+        document.getElementById('loginFooter').textContent=`🍼 Welcome back, ${saved.name}! 🍼`;
+      }
+      showLogin();
+    } else {
+      // Connected fine, but no users yet → create the first admin.
+      show('setupScreen');
+      se('setupErr','لا يوجد أي مستخدم بعد — سوِّ أول حساب أدمن.');
+    }
+  }).catch(e=>{
+    // The ONLY way we land here is Firebase rejecting the read.
+    show('setupScreen');
+    const denied=/permission|denied/i.test(e.message||'');
+    se('setupErr', denied
+      ? '⚠️ قاعدة البيانات رافضة القراءة (Permission denied). روح Firebase Console → Realtime Database → Rules، خلّيها {".read":true,".write":true} واضغط Publish، بعدين Refresh.'
+      : ('Database error: '+e.message));
+  });
+})();
+</script>
+</body>
+</html>
